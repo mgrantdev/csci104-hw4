@@ -206,7 +206,7 @@ public:
     /**
      * An internal iterator class for traversing the contents of the BST.
      */
-    class iterator // TODO
+    class iterator
     {
     public:
         iterator();
@@ -303,7 +303,7 @@ template <class Key, class Value>
 bool BinarySearchTree<Key, Value>::iterator::operator==(
     const BinarySearchTree<Key, Value>::iterator &rhs) const
 {
-    return current_ = rhs.current_;
+    return current_ == rhs.current_;
 }
 
 /**
@@ -324,9 +324,8 @@ template <class Key, class Value>
 typename BinarySearchTree<Key, Value>::iterator &
 BinarySearchTree<Key, Value>::iterator::operator++()
 {
-    Node<Key, Value> *curr = ;
-    pushToLeft(node.right);
-    return node.val;
+    current_++;
+    return *this;
 }
 
 /*
