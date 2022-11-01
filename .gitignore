@@ -74,3 +74,4 @@ hw4_tests/
 equal-paths-test
 bst-test
 
+.vscode/settings.json
