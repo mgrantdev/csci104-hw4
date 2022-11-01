@@ -198,12 +198,14 @@ public:
     void clear();
     void clearSubtree(Node<Key, Value> *n);
     Node<Key, Value> *insertHelper(Node<Key, Value> *n, const std::pair<const Key, Value> &keyValuePair);
-    bool isBalanced() const; // TODO
+    bool isBalanced() const;
     void print() const;
     bool empty() const;
 
     template <typename PPKey, typename PPValue>
     friend void prettyPrintBST(BinarySearchTree<PPKey, PPValue> &tree);
+private:
+    bool checkBalance(Node<Key, Value>* n);
 
 public:
     /**
@@ -580,13 +582,29 @@ Node<Key, Value> *BinarySearchTree<Key, Value>::internalFind(const Key &key) con
 {
 }
 
+/** 
+ * Check if tree is balanced
+ * */
+template<typename Key, typename Value>
+bool BinarySearchTree<Key, Value>::checkBalance(Node<Key, Value>* n)
+{
+    // @summary If n is empty, return true as default
+    if (n == NULL) return true;
+
+    // @summary Get height of each subtree and compare
+    int LSubtreeHeight = getHeight(n->getLeft());
+    int RSubtreeHeight = getHeight(n->getRight());
+    if (abs(LSubtreeHeight - RSubtreeHeight) >= 2) return false;
+    return checkBalance(n->left) && checkBalance(n->right_);
+}
+
 /**
  * Return true iff the BST is balanced.
  */
 template <typename Key, typename Value>
 bool BinarySearchTree<Key, Value>::isBalanced() const
 {
-    // TODO
+    return checkBalance(root_);
 }
 
 template <typename Key, typename Value>
