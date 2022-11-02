@@ -240,9 +240,9 @@ public:
 
 protected:
     // Mandatory helper functions
-    Node<Key, Value> *internalFind(const Key &k) const; // TODO
+    Node<Key, Value> *internalFind(const Key &k) const;
     Node<Key, Value> *getSmallestNode() const;
-    static Node<Key, Value> *predecessor(Node<Key, Value> *current); // TODO
+    static Node<Key, Value> *predecessor(Node<Key, Value> *current);
     // Note:  static means these functions don't have a "this" pointer
     //        and instead just use the input argument.
 
@@ -251,6 +251,7 @@ protected:
     virtual void nodeSwap(Node<Key, Value> *n1, Node<Key, Value> *n2);
 
     // Add helper functions here
+    Node<Key, Value>* getNode(const Key& k, Node<Key, Value>* n) const;
 
 protected:
     Node<Key, Value> *root_;
@@ -599,6 +600,29 @@ Node<Key, Value> *BinarySearchTree<Key, Value>::getSmallestNode() const
 }
 
 /**
+ * @brief Helper function to get node with given key
+ * 
+ * @tparam Key 
+ * @tparam Value 
+ * @param key 
+ * @return Node<Key, Value>* 
+ */
+template <typename Key, typename Value>
+Node<Key, Value>* BinarySearchTree<Key, Value>::getNode(const Key& k, Node<Key, Value>* n) const
+{
+    // @condition If node is empty, return null
+    if(n == NULL) return NULL;
+
+    // @condition If keys match, return node
+    if(n->getKey() == k) return n;
+
+    // @condition If key less than n, go left. Otherwise, go right
+    if(n->getKey() > k) return getNode(k, n->getLeft());
+    else return getNode(k, n->getRight());
+    
+}
+
+/**
  * Helper function to find a node with given key, k and
  * return a pointer to it or NULL if no item with that key
  * exists
@@ -606,6 +630,7 @@ Node<Key, Value> *BinarySearchTree<Key, Value>::getSmallestNode() const
 template <typename Key, typename Value>
 Node<Key, Value> *BinarySearchTree<Key, Value>::internalFind(const Key &key) const
 {
+    return this->getNode(key, root_);
 }
 
 /**
