@@ -194,7 +194,7 @@ public:
     BinarySearchTree();
     virtual ~BinarySearchTree();
     virtual void insert(const std::pair<const Key, Value> &keyValuePair);
-    virtual void remove(const Key &key); // TODO
+    virtual void remove(const Key &key);
     void clear();
     void clearSubtree(Node<Key, Value> *n);
     Node<Key, Value> *insertHelper(Node<Key, Value> *n, const std::pair<const Key, Value> &keyValuePair);
@@ -251,7 +251,7 @@ protected:
     virtual void nodeSwap(Node<Key, Value> *n1, Node<Key, Value> *n2);
 
     // Add helper functions here
-    Node<Key, Value>* getNode(const Key& k, Node<Key, Value>* n) const;
+    Node<Key, Value> *getNode(const Key &k, Node<Key, Value> *n) const;
 
 protected:
     Node<Key, Value> *root_;
@@ -525,7 +525,82 @@ void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &key
 template <typename Key, typename Value>
 void BinarySearchTree<Key, Value>::remove(const Key &key)
 {
-    // TODO
+    Node<Key, Value> *n = internalFind(key);
+    if (n == NULL)
+        return;
+    Node<Key, Value> *p = n->getParent();
+    if (p->getLeft() == NULL && p->getRight() == NULL)
+    {
+        // @condition If leaf node, remove
+        if (p == NULL)
+            root_ = n; // root node case
+        if (p != NULL)
+        { // update parent
+            if (p->getLeft() == n)
+                p->setLeft(NULL);
+            else
+                p->setRight(NULL);
+        }
+        delete n;
+    }
+    else
+
+        // 1 child case
+        if ((p->getLeft() == NULL && p->getRight() == n) || (p->getLeft() == n && p->getLeft() == n))
+        {
+            if (p == NULL)
+            { // if root, promote/update child
+                n->setParent(NULL);
+                root_ = n;
+                delete n;
+            }
+            if (p != NULL) // If not root, find child and promote/update
+            {
+                // Find out which direction is the child and promote it
+                if (p->getLeft() == n)
+                {
+                    delete n;
+                    p->setLeft(n);
+                }
+                else
+                {
+                    delete n;
+                    p->setRight(n);
+                }
+                n->setParent(p); // set new parent
+            }
+        }
+
+     else // If 2 children, swap n with predecessor and delete n
+        {
+            Node<Key, Value> *pred = this->predecessor(n);
+            nodeSwap(n, pred);
+
+            // leaf node case: update predecessor parent
+            if (n->getLeft() == NULL && n->getRight() == NULL) // Leaf node
+            {
+                 if (pred->getParent()->getLeft() == n) pred->getParent()->setLeft(NULL);
+                else pred->getParent()->setRight(NULL);
+                delete n;
+            }
+
+            // 1 child case: find child, promote and update
+            else if ((n->getLeft() != NULL && n->getRight() == NULL) || (n->getLeft() == NULL && n->getRight() != NULL)) // 1 child
+            {
+                Node<Key, Value>* predChild = n->getLeft() != NULL ? n->getLeft() : n->getRight();
+                if (pred->getParent()->getLeft() == n)
+                {
+                    delete n;
+                    pred->getParent()->setLeft(predChild);
+                }
+                else
+                {
+                    delete n;
+                    pred->getParent()->setRight(predChild);
+                }
+                predChild->setParent(pred->getParent());
+            }
+        }
 }
 
 /*
@@ -601,25 +676,28 @@ Node<Key, Value> *BinarySearchTree<Key, Value>::getSmallestNode() const
 
 /**
  * @brief Helper function to get node with given key
- * 
- * @tparam Key 
- * @tparam Value 
- * @param key 
- * @return Node<Key, Value>* 
+ *
+ * @tparam Key
+ * @tparam Value
+ * @param key
+ * @return Node<Key, Value>*
  */
 template <typename Key, typename Value>
-Node<Key, Value>* BinarySearchTree<Key, Value>::getNode(const Key& k, Node<Key, Value>* n) const
+Node<Key, Value> *BinarySearchTree<Key, Value>::getNode(const Key &k, Node<Key, Value> *n) const
 {
     // @condition If node is empty, return null
-    if(n == NULL) return NULL;
+    if (n == NULL)
+        return NULL;
 
     // @condition If keys match, return node
-    if(n->getKey() == k) return n;
+    if (n->getKey() == k)
+        return n;
 
     // @condition If key less than n, go left. Otherwise, go right
-    if(n->getKey() > k) return getNode(k, n->getLeft());
-    else return getNode(k, n->getRight());
-    
+    if (n->getKey() > k)
+        return getNode(k, n->getLeft());
+    else
+        return getNode(k, n->getRight());
 }
 
 /**
