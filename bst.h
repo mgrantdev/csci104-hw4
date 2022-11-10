@@ -242,7 +242,7 @@ protected:
     // Mandatory helper functions
     Node<Key, Value> *internalFind(const Key &k) const;
     Node<Key, Value> *getSmallestNode() const;
-    static Node<Key, Value> *predecessor(Node<Key, Value> *current);
+    static Node<Key, Value> *pred(Node<Key, Value> *current);
     // Note:  static means these functions don't have a "this" pointer
     //        and instead just use the input argument.
 
@@ -490,12 +490,11 @@ void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &key
             setLeftChild = false;
 
         } // @condition If key is the same, update value
-        else
-            if (keyValuePair.first == newNode->getKey())
-            {
-                newNode->setValue(keyValuePair.second);
-                return;
-            }
+        else if (keyValuePair.first == newNode->getKey())
+        {
+            newNode->setValue(keyValuePair.second);
+            return;
+        }
     }
 
     newNode = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, p);
@@ -514,7 +513,7 @@ void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &key
 /**
  * A remove method to remove a specific key from a Binary Search Tree.
  * Recall: The writeup specifies that if a node has 2 children you
- * should swap with the predecessor and then remove.
+ * should swap with the pred and then remove.
  */
 template <typename Key, typename Value>
 void BinarySearchTree<Key, Value>::remove(const Key &key)
@@ -574,8 +573,8 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
     {
 
         // @summary 2 child case; Swap n with predecessor and remove n; WIll have either 0 or 1 child afterwards
-        Node<Key, Value> *predecessor = this->predecessor(n);
-        nodeSwap(n, predecessor);
+        Node<Key, Value> *pred = this->pred(n);
+        nodeSwap(n, pred);
 
         Node<Key, Value> *predParent = n->getParent();
 
@@ -592,9 +591,15 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
         else if (n->getLeft() != NULL && n->getRight() == NULL || n->getLeft() == NULL && n->getRight() != NULL) // 1 child
         {
             // @summary 1 child remaining case
-            Node<Key, Value> *c; 
-            if( n->getLeft() == NULL) c = n->getLeft();
-            else c = n->getRight();
+            Node<Key, Value> *c;
+            if (n->getLeft() != NULL)
+            {
+                c = n->getLeft();
+            }
+            else
+            {
+                c = n->getRight()
+            };
 
             if (predParent->getRight() == n)
             {
@@ -616,7 +621,7 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
 */
 template <class Key, class Value>
 Node<Key, Value> *
-BinarySearchTree<Key, Value>::predecessor(Node<Key, Value> *current)
+BinarySearchTree<Key, Value>::pred(Node<Key, Value> *current)
 {
     // @summary Get max value of subtree
     Node<Key, Value> *p = current->getLeft();
