@@ -331,7 +331,7 @@ typename BinarySearchTree<Key, Value>::iterator &
 BinarySearchTree<Key, Value>::iterator::operator++()
 {
     // Base case: Return NULL iterator if current node is empty
-    if (n == NULL)
+    if (current_ == NULL)
         return *this;
 
     // @condition If right tree exists, find successor
