@@ -563,7 +563,7 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
             }
             c->setParent(p);
         }
-        else 
+        else
         {
             // @summary Root case: Promote child to root
             c->setParent(NULL);
@@ -572,72 +572,39 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
         }
     }
     else
+    {
 
-        // @summary 2 child case; Use above cases
+        // @summary 2 child case; Swap n with predecessor and remove n; WIll have either 0 or 1 child afterwards
+        Node<Key, Value> *pred = this->predecessor(n);
+        nodeSwap(n, pred);
 
-        if ((n->getLeft() == NULL && n->getRight() != NULL) || (n->getLeft() != NULL && n->getRight() == NULL))
+        // @condition leaf node subcase: update predecessor parent
+        if (n->getLeft() == NULL && n->getRight() == NULL) // Leaf node
         {
-            // @summary Get child of current node
-            Node<Key, Value> *c;
-            if (n->getLeft() != NULL)
-                c = n->getLeft();
+            if (pred->getParent()->getLeft() == n)
+                pred->getParent()->setLeft(NULL);
             else
-                c = n->getRight();
-            if (p == NULL)
-            { // if root, promote/update child
-                c->setParent(NULL);
-                root_ = c;
-                delete n;
-            }
-            if (p != NULL) // If not root, find child and promote/update
-            {
-                // Find out which direction is the child and promote it
-                if (p->getRight() == n)
-                {
-                    delete n;
-                    p->setRight(c);
-                }
-                else
-                {
-                    delete n;
-                    p->setLeft(c);
-                }
-                c->setParent(p); // set new parent
-            }
+                pred->getParent()->setRight(NULL);
+            delete n;
         }
 
-        else // If 2 children, swap n with predecessor and delete n
+        // @condition 1 child subcase: find child, promote and update
+        else if ((n->getLeft() != NULL && n->getRight() == NULL) || (n->getLeft() == NULL && n->getRight() != NULL)) // 1 child
         {
-            Node<Key, Value> *pred = this->predecessor(n);
-            nodeSwap(n, pred);
-
-            // leaf node case: update predecessor parent
-            if (n->getLeft() == NULL && n->getRight() == NULL) // Leaf node
+            Node<Key, Value> *predChild = n->getLeft() != NULL ? n->getLeft() : n->getRight();
+            if (pred->getParent()->getLeft() == n)
             {
-                if (pred->getParent()->getLeft() == n)
-                    pred->getParent()->setLeft(NULL);
-                else
-                    pred->getParent()->setRight(NULL);
                 delete n;
+                pred->getParent()->setLeft(predChild);
             }
-
-            // 1 child case: find child, promote and update
-            else if ((n->getLeft() != NULL && n->getRight() == NULL) || (n->getLeft() == NULL && n->getRight() != NULL)) // 1 child
+            else
             {
-                Node<Key, Value> *predChild = n->getLeft() != NULL ? n->getLeft() : n->getRight();
-                if (pred->getParent()->getLeft() == n)
-                {
-                    delete n;
-                    pred->getParent()->setLeft(predChild);
-                }
-                else
-                {
-                    delete n;
-                    pred->getParent()->setRight(predChild);
-                }
-                predChild->setParent(pred->getParent());
+                delete n;
+                pred->getParent()->setRight(predChild);
             }
+            predChild->setParent(pred->getParent());
         }
+    }
 }
 
 /*
