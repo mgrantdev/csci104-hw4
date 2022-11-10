@@ -481,13 +481,9 @@ void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &key
         {
             newNode = newNode->getLeft();
         }
-        else if(keyValuePair.first > newNode->getKey())
+        else if (keyValuePair.first > newNode->getKey())
 
-            // @condition If key is larger, traverse right subtree
-            if (keyValuePair.first < newNode->getKey())
-            {
-                newNode = newNode->getRight();
-            }
+            newNode = newNode->getRight();
 
         // @condition If key is the same, update value
         if (keyValuePair.first == newNode->getKey())
@@ -499,7 +495,7 @@ void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &key
 
     newNode = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, p);
 
-     // @condition Determine direction of child and set new parent
+    // @condition Determine direction of child and set new parent
     if (p->getRight() == newNode)
     {
         p->setRight(newNode);
@@ -508,7 +504,6 @@ void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &key
     {
         p->setLeft(newNode);
     }
-
 }
 
 /**
