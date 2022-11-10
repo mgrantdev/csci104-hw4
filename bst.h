@@ -699,6 +699,7 @@ Node<Key, Value> *BinarySearchTree<Key, Value>::getNode(const Key &k, Node<Key, 
         return getNode(k, n->getLeft());
     else
         return getNode(k, n->getRight());
+    return NULL;
 }
 
 /**
