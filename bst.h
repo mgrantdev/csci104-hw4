@@ -651,9 +651,7 @@ void BinarySearchTree<Key, Value>::clearSubtree(Node<Key, Value> *n)
         clearSubtree(n->getRight());
         clearSubtree(n->getLeft());
     }
-
-    // Remove this node
-    this->remove(n->getKey());
+    delete n;
 }
 
 /**
