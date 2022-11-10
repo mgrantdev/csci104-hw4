@@ -252,7 +252,7 @@ protected:
 
     // Add helper functions here
     Node<Key, Value> *getNode(const Key &k, Node<Key, Value> *n) const;
-    int getHeight(Node<Key, Value>* n) const;
+    int getHeight(Node<Key, Value> *n) const;
 
 protected:
     Node<Key, Value> *root_;
@@ -331,30 +331,24 @@ typename BinarySearchTree<Key, Value>::iterator &
 BinarySearchTree<Key, Value>::iterator::operator++()
 {
     // Base case: Return NULL iterator if current node is empty
-    Node<Key, Value> *n = current_;
     if (n == NULL)
         return *this;
 
-    // If right tree exists, find successor
-    if (n->getRight() != NULL)
+    // @condition If right tree exists, find successor
+    if (current_->getRight() != NULL)
     {
-        n = n->getRight();
-        while (n->getLeft() != NULL)
+        current_ = current_->getRight();
+        while (current_->getLeft() != NULL)
         {
-            n = n->getLeft();
+            current_ = current_->getLeft();
         }
-        current_ = n;
         return *this;
     }
 
     // Right subtree cases
-
-    // If left child --> Return parent. Otherwise, return grandparent
-    if (n->getParent() != NULL && n->getParent()->getLeft() == n)
-        n = n->getParent();
-    if (n->getParent() != NULL && n->getParent()->getRight() == n)
-        n = n->getParent()->getParent();
-    current_ = n;
+    while (current_->getParent() && current_->getParent()->getRight() == current_)
+        current_ = current_->getParent(); // If right child, go back one node
+    current_ = current_->getParent();
     return *this;
 }
 
@@ -461,7 +455,8 @@ template <class Key, class Value>
 Node<Key, Value> *BinarySearchTree<Key, Value>::insertHelper(Node<Key, Value> *n, const std::pair<const Key, Value> &keyValuePair)
 {
     // @condition If child is null, return it first
-    if (n == NULL) return n;
+    if (n == NULL)
+        return n;
 
     Node<Key, Value> *c;
     // @condition If key is smaller, traverse left subtree
@@ -571,7 +566,7 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
             }
         }
 
-     else // If 2 children, swap n with predecessor and delete n
+        else // If 2 children, swap n with predecessor and delete n
         {
             Node<Key, Value> *pred = this->predecessor(n);
             nodeSwap(n, pred);
@@ -579,15 +574,17 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
             // leaf node case: update predecessor parent
             if (n->getLeft() == NULL && n->getRight() == NULL) // Leaf node
             {
-                 if (pred->getParent()->getLeft() == n) pred->getParent()->setLeft(NULL);
-                else pred->getParent()->setRight(NULL);
+                if (pred->getParent()->getLeft() == n)
+                    pred->getParent()->setLeft(NULL);
+                else
+                    pred->getParent()->setRight(NULL);
                 delete n;
             }
 
             // 1 child case: find child, promote and update
             else if ((n->getLeft() != NULL && n->getRight() == NULL) || (n->getLeft() == NULL && n->getRight() != NULL)) // 1 child
             {
-                Node<Key, Value>* predChild = n->getLeft() != NULL ? n->getLeft() : n->getRight();
+                Node<Key, Value> *predChild = n->getLeft() != NULL ? n->getLeft() : n->getRight();
                 if (pred->getParent()->getLeft() == n)
                 {
                     delete n;
@@ -684,7 +681,7 @@ template <typename Key, typename Value>
 Node<Key, Value> *BinarySearchTree<Key, Value>::getNode(const Key &k, Node<Key, Value> *n) const
 {
     // @condition If node is empty, return null
-    if (n == NULL) 
+    if (n == NULL)
         return NULL;
 
     // @condition If keys match, return node
@@ -711,9 +708,10 @@ Node<Key, Value> *BinarySearchTree<Key, Value>::internalFind(const Key &key) con
 
 // @summary Get height of tree
 template <typename Key, typename Value>
-int BinarySearchTree<Key, Value>::getHeight(Node<Key, Value>* n) const
+int BinarySearchTree<Key, Value>::getHeight(Node<Key, Value> *n) const
 {
-    if (n == NULL) return 0;
+    if (n == NULL)
+        return 0;
     int leftHeight = getHeight(n->getLeft());
     int rightHeight = getHeight(n->getRight());
     return std::max(leftHeight, rightHeight) + 1;
