@@ -737,7 +737,7 @@ bool BinarySearchTree<Key, Value>::checkBalance(Node<Key, Value> *n)
     int RSubtreeHeight = getHeight(n->getRight());
     if (abs(LSubtreeHeight - RSubtreeHeight) >= 2)
         return false;
-    return checkBalance(n->left) && checkBalance(n->right_);
+    return checkBalance(n->getLeft()) && checkBalance(n->getRight());
 }
 
 /**
