@@ -610,14 +610,11 @@ template <class Key, class Value>
 Node<Key, Value> *
 BinarySearchTree<Key, Value>::predecessor(Node<Key, Value> *current)
 {
-    // @summary If no node found at given position, return NULL
-    if (current == NULL)
-        return NULL;
-    if (current->getLeft() == NULL)
-        return NULL;
-
     // @summary Get max value of subtree
     Node<Key, Value> *p = current->getLeft();
+
+    // @summary If no node found at given position, return NULL
+    if(p == NULL) return NULL;
     while (p->getRight() != NULL)
     {
         p = p->getRight();
