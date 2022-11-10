@@ -687,7 +687,7 @@ template <typename Key, typename Value>
 Node<Key, Value> *BinarySearchTree<Key, Value>::getNode(const Key &k, Node<Key, Value> *n) const
 {
     // @condition If node is empty, return null
-    if (n == NULL)
+    if (n == NULL) 
         return NULL;
 
     // @condition If keys match, return node
@@ -699,7 +699,6 @@ Node<Key, Value> *BinarySearchTree<Key, Value>::getNode(const Key &k, Node<Key, 
         return getNode(k, n->getLeft());
     else
         return getNode(k, n->getRight());
-    return NULL;
 }
 
 /**
