@@ -598,8 +598,8 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
             }
             else
             {
-                c = n->getRight()
-            };
+                c = n->getRight();
+            }
 
             if (predParent->getRight() == n)
             {
