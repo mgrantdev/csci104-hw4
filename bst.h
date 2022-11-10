@@ -538,14 +538,51 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
         }
         delete n;
     }
+    else if ((n->getLeft() == NULL && n->getRight() != NULL) || (n->getLeft() != NULL && n->getRight() == NULL))
+    {
+        // @summary 1 child case
+
+        // @summary Get child of current node
+        Node<Key, Value> *c;
+        if (n->getLeft() != NULL)
+            c = n->getLeft();
+        else
+            c = n->getRight();
+        if (p != NULL)
+        {
+            // @condition Determine direction of child and set new parent
+            if (p->getRight() == n)
+            {
+                delete n;
+                p->setRight(c);
+            }
+            else
+            {
+                delete n;
+                p->setLeft(c);
+            }
+            c->setParent(p);
+        }
+        else 
+        {
+            // @summary Root case: Promote child to root
+            c->setParent(NULL);
+            root_ = c;
+            delete n;
+        }
+    }
     else
 
-        // 1 child case
+        // @summary 2 child case; Use above cases
+
         if ((n->getLeft() == NULL && n->getRight() != NULL) || (n->getLeft() != NULL && n->getRight() == NULL))
         {
-            Node<Key, Value>* c; // child of current node
-            if(n->getLeft() != NULL) c = n->getLeft();
-            else c = n->getRight(); 
+            // @summary Get child of current node
+            Node<Key, Value> *c;
+            if (n->getLeft() != NULL)
+                c = n->getLeft();
+            else
+                c = n->getRight();
             if (p == NULL)
             { // if root, promote/update child
                 c->setParent(NULL);
@@ -614,7 +651,8 @@ BinarySearchTree<Key, Value>::predecessor(Node<Key, Value> *current)
     Node<Key, Value> *p = current->getLeft();
 
     // @summary If no node found at given position, return NULL
-    if(p == NULL) return NULL;
+    if (p == NULL)
+        return NULL;
     while (p->getRight() != NULL)
     {
         p = p->getRight();
