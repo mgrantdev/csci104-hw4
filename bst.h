@@ -548,8 +548,8 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
             else c = n->getRight(); 
             if (p == NULL)
             { // if root, promote/update child
-                n->setParent(NULL);
-                root_ = n;
+                c->setParent(NULL);
+                root_ = c;
                 delete n;
             }
             if (p != NULL) // If not root, find child and promote/update
