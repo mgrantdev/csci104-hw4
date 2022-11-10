@@ -524,6 +524,7 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
     if (n == NULL)
         return;
     Node<Key, Value> *p = n->getParent();
+    if(p == NULL) delete p;
     if (p->getLeft() == NULL && p->getRight() == NULL)
     {
         // @condition If leaf node, remove
