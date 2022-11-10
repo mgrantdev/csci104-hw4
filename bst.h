@@ -252,6 +252,7 @@ protected:
 
     // Add helper functions here
     Node<Key, Value> *getNode(const Key &k, Node<Key, Value> *n) const;
+    int getHeight(Node<Key, Value>* n) const;
 
 protected:
     Node<Key, Value> *root_;
@@ -498,9 +499,9 @@ template <class Key, class Value>
 void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &keyValuePair)
 {
     // Create new root node if it doesn't exist
-    if (this->root_ == NULL)
+    if (root_ == NULL)
     {
-        this->root_ = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
+        root_ = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
         return;
     }
 
@@ -633,7 +634,7 @@ template <typename Key, typename Value>
 void BinarySearchTree<Key, Value>::clear()
 {
     // clear tree and reset root
-    clearSubtree(this->root_);
+    clearSubtree(root_);
     root_ = NULL;
 }
 
@@ -709,6 +710,16 @@ template <typename Key, typename Value>
 Node<Key, Value> *BinarySearchTree<Key, Value>::internalFind(const Key &key) const
 {
     return this->getNode(key, root_);
+}
+
+// @summary Get height of tree
+template <typename Key, typename Value>
+int BinarySearchTree<Key, Value>::getHeight(Node<Key, Value>* n) const
+{
+    if (n == NULL) return 0;
+    int leftHeight = getHeight(n->getLeft());
+    int rightHeight = getHeight(n->getRight());
+    return std::max(leftHeight, rightHeight) + 1;
 }
 
 /**
@@ -824,13 +835,13 @@ void BinarySearchTree<Key, Value>::nodeSwap(Node<Key, Value> *n1, Node<Key, Valu
         n2lt->setParent(n1);
     }
 
-    if (this->root_ == n1)
+    if (root_ == n1)
     {
-        this->root_ = n2;
+        root_ = n2;
     }
-    else if (this->root_ == n2)
+    else if (root_ == n2)
     {
-        this->root_ = n1;
+        root_ = n1;
     }
 }
 
@@ -838,7 +849,7 @@ void BinarySearchTree<Key, Value>::nodeSwap(Node<Key, Value> *n1, Node<Key, Valu
  * Lastly, we are providing you with a print function,
    BinarySearchTree::printRoot().
    Just call it with a node to start printing at, e.g:
-   this->printRoot(this->root_) // or any other node pointer
+   this->printRoot(root_) // or any other node pointer
 
    It will print up to 5 levels of the tree rooted at the passed node,
    in ASCII graphics format.
