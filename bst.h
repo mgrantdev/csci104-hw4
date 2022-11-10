@@ -541,7 +541,7 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
     else
 
         // 1 child case
-        if ((n->getLeft() == NULL && n->getRight() != NULL) || (n->getLeft() != NULL && n->getRight() != NULL))
+        if ((n->getLeft() == NULL && n->getRight() != NULL) || (n->getLeft() != NULL && n->getRight() == NULL))
         {
             Node<Key, Value>* c; // child of current node
             if(n->getLeft() != NULL) c = n->getLeft();
