@@ -582,26 +582,29 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
         // @summary Leaf node case
         if (n->getLeft() == NULL && n->getRight() == NULL)
         {
-            if (predParent->getLeft() == n)
-                predParent->setLeft(NULL);
-            else
+            if (predParent->getRight() == n)
                 predParent->setRight(NULL);
+            else
+                predParent->setLeft(NULL);
             delete n;
         }
 
         else if (n->getLeft() != NULL && n->getRight() == NULL || n->getLeft() == NULL && n->getRight() != NULL) // 1 child
         {
             // @summary 1 child remaining case
-            Node<Key, Value> *c = n->getLeft() == NULL ? n->getLeft() : n->getRight();
-            if (predParent->getLeft() == n)
+            Node<Key, Value> *c; 
+            if( n->getLeft() == NULL) c = n->getLeft();
+            else c = n->getRight();
+
+            if (predParent->getRight() == n)
             {
                 delete n;
-                predParent->setLeft(c);
+                predParent->setRight(c);
             }
             else
             {
                 delete n;
-                predParent->setRight(c);
+                predParent->setLeft(c);
             }
             c->setParent(predParent);
         }
