@@ -451,38 +451,6 @@ Value const &BinarySearchTree<Key, Value>::operator[](const Key &key) const
     return curr->getValue();
 }
 
-template <class Key, class Value>
-Node<Key, Value> *BinarySearchTree<Key, Value>::insertHelper(Node<Key, Value> *n, const std::pair<const Key, Value> &keyValuePair)
-{
-    // @condition If child is null, return it first
-    if (n == NULL)
-        return n;
-
-    Node<Key, Value> *c;
-    // @condition If key is smaller, traverse left subtree
-    if (keyValuePair.first < n->getKey())
-    {
-        c = insertHelper(n->getLeft(), keyValuePair);
-    }
-    else
-
-        // @condition If key is larger, traverse right subtree
-        if (keyValuePair.first < n->getKey())
-        {
-            c = insertHelper(n->getRight(), keyValuePair);
-        }
-
-    // @condition If key is the same, update value
-    if (keyValuePair.first == n->getKey())
-    {
-        n->setValue(keyValuePair.second);
-        return n;
-    }
-
-    // Return parent
-    return n;
-}
-
 /**
  * An insert method to insert into a Binary Search Tree.
  * The tree will not remain balanced when inserting.
@@ -492,24 +460,56 @@ Node<Key, Value> *BinarySearchTree<Key, Value>::insertHelper(Node<Key, Value> *n
 template <class Key, class Value>
 void BinarySearchTree<Key, Value>::insert(const std::pair<const Key, Value> &keyValuePair)
 {
-    // Create new root node if it doesn't exist
+
+    // @condition Create new root node if it doesn't exist
     if (root_ == NULL)
     {
         root_ = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, NULL);
         return;
     }
 
-    // Insert new node at proper location
-    Node<Key, Value> *parent = insertHelper(root_, keyValuePair);
-    Node<Key, Value> *newNode = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, parent);
-    if (keyValuePair.first < parent->getKey())
+    // @summary Search for appropiate key location
+    Node<Key, Value> *p = NULL;
+    Node<Key, Value> *newNode = root_;
+
+    while (newNode != NULL)
     {
-        parent->setLeft(newNode);
+        p = newNode; // will become the parent
+
+        // @condition If key is smaller, traverse left subtree
+        if (keyValuePair.first < newNode->getKey())
+        {
+            newNode = newNode->getLeft();
+        }
+        else if(keyValuePair.first > n->getKey())
+
+            // @condition If key is larger, traverse right subtree
+            if (keyValuePair.first < newNode->getKey())
+            {
+                newNode = newNode->getRight();
+            }
+
+        // @condition If key is the same, update value
+        if (keyValuePair.first == n->getKey())
+        {
+            newNode->setValue(keyValuePair.second);
+            return;
+        }
     }
-    else if (keyValuePair.first > parent->getKey())
+
+    newNode = new Node<Key, Value>(keyValuePair.first, keyValuePair.second, p);
+
+     // @condition Determine direction of child and set new parent
+    if (p->getRight() == newNode)
     {
-        parent->setRight(newNode);
+        p->setRight(newNode);
     }
+    else
+    {
+        delete n;
+        p->setLeft(newNode);
+    }
+
 }
 
 /**
@@ -575,35 +575,36 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
     {
 
         // @summary 2 child case; Swap n with predecessor and remove n; WIll have either 0 or 1 child afterwards
-        Node<Key, Value> *pred = this->predecessor(n);
-        nodeSwap(n, pred);
+        Node<Key, Value> *predecessor = this->predecessor(n);
+        nodeSwap(n, predecessor);
 
-        // @condition leaf node subcase: update predecessor parent
-        if (n->getLeft() == NULL && n->getRight() == NULL) // Leaf node
-        { 
-            if (pred->getParent() == NULL) root_ = NULL; // root node case
-            if (pred->getParent()->getLeft() == n)
-                pred->getParent()->setLeft(NULL);
+        Node<Key, Value> *predParent = n->getParent();
+
+        // @summary Leaf node case
+        if (n->getLeft() == NULL && n->getRight() == NULL)
+        {
+            if (predParent->getLeft() == n)
+                predParent->setLeft(NULL);
             else
-                pred->getParent()->setRight(NULL);
+                predParent->setRight(NULL);
             delete n;
         }
 
-        // @condition 1 child subcase: find child, promote and update
-        else if ((n->getLeft() != NULL && n->getRight() == NULL) || (n->getLeft() == NULL && n->getRight() != NULL)) // 1 child
+        else if (n->getLeft() != NULL && n->getRight() == NULL || n->getLeft() == NULL && n->getRight() != NULL) // 1 child
         {
-            Node<Key, Value> *predChild = n->getLeft() != NULL ? n->getLeft() : n->getRight();
-            if (pred->getParent()->getLeft() == n)
+            // @summary 1 child remaining case
+            Node<Key, Value> *c = n->getLeft() == NULL ? n->getLeft() : n->getRight();
+            if (predParent->getLeft() == n)
             {
                 delete n;
-                pred->getParent()->setLeft(predChild);
+                predParent->setLeft(c);
             }
             else
             {
                 delete n;
-                pred->getParent()->setRight(predChild);
+                predParent->setRight(c);
             }
-            predChild->setParent(pred->getParent());
+            c->setParent(predParent);
         }
     }
 }
