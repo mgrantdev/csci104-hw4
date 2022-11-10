@@ -543,6 +543,9 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
         // 1 child case
         if ((n->getLeft() == NULL && n->getRight() != NULL) || (n->getLeft() != NULL && n->getRight() != NULL))
         {
+            Node<Key, Value>* c; // child of current node
+            if(n->getLeft() != NULL) c = n->getLeft();
+            else c = n->getRight(); 
             if (p == NULL)
             { // if root, promote/update child
                 n->setParent(NULL);
@@ -552,17 +555,17 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
             if (p != NULL) // If not root, find child and promote/update
             {
                 // Find out which direction is the child and promote it
-                if (p->getLeft() == n)
+                if (p->getRight() == n)
                 {
                     delete n;
-                    p->setLeft(n);
+                    p->setRight(c);
                 }
                 else
                 {
                     delete n;
-                    p->setRight(n);
+                    p->setLeft(c);
                 }
-                n->setParent(p); // set new parent
+                c->setParent(p); // set new parent
             }
         }
 
