@@ -206,7 +206,7 @@ public:
     friend void prettyPrintBST(BinarySearchTree<PPKey, PPValue> &tree);
 
 private:
-    bool checkBalance(Node<Key, Value> *n);
+    bool checkBalance(Node<Key, Value> *n) const;
 
 public:
     /**
@@ -726,7 +726,7 @@ int BinarySearchTree<Key, Value>::getHeight(Node<Key, Value>* n) const
  * Check if tree is balanced
  * */
 template <typename Key, typename Value>
-bool BinarySearchTree<Key, Value>::checkBalance(Node<Key, Value> *n)
+bool BinarySearchTree<Key, Value>::checkBalance(Node<Key, Value> *n) const
 {
     // @summary If n is empty, return true as default
     if (n == NULL)
