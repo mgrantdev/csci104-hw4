@@ -460,25 +460,24 @@ Value const &BinarySearchTree<Key, Value>::operator[](const Key &key) const
 template <class Key, class Value>
 Node<Key, Value> *BinarySearchTree<Key, Value>::insertHelper(Node<Key, Value> *n, const std::pair<const Key, Value> &keyValuePair)
 {
-    // If child is null, return parent
-    if (n == NULL)
-        return n->getParent();
+    // @condition If child is null, return it first
+    if (n == NULL) return n;
 
     Node<Key, Value> *c;
-    // If key is smaller, traverse left subtree
+    // @condition If key is smaller, traverse left subtree
     if (keyValuePair.first < n->getKey())
     {
         c = insertHelper(n->getLeft(), keyValuePair);
     }
     else
 
-        // If key is larger, traverse right subtree
+        // @condition If key is larger, traverse right subtree
         if (keyValuePair.first < n->getKey())
         {
             c = insertHelper(n->getRight(), keyValuePair);
         }
 
-    // If key is the same, update value
+    // @condition If key is the same, update value
     if (keyValuePair.first == n->getKey())
     {
         n->setValue(keyValuePair.second);
