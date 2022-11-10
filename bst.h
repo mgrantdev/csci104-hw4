@@ -524,11 +524,7 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
     if (n == NULL)
         return;
     Node<Key, Value> *p = n->getParent();
-    if(p == NULL) {
-        delete p; 
-        return;
-    }
-    if (p->getLeft() == NULL && p->getRight() == NULL)
+    if (n->getLeft() == NULL && n->getRight() == NULL)
     {
         // @condition If leaf node, remove
         if (p == NULL)
@@ -545,7 +541,7 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
     else
 
         // 1 child case
-        if ((p->getLeft() == NULL && p->getRight() == n) || (p->getLeft() == n && p->getLeft() == n))
+        if ((n->getLeft() == NULL && n->getRight() != NULL) || (n->getLeft() != NULL && n->getRight() != NULL))
         {
             if (p == NULL)
             { // if root, promote/update child
