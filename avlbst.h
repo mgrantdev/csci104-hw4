@@ -151,6 +151,7 @@ void AVLTree<Key, Value>::insert(const std::pair<const Key, Value> &new_item)
 
     // Begin AVL-specific insert implementation
     AVLNode<Key, Value>* newNode = static_cast<AVLNode<Key, Value>*>(BinarySearchTree<Key, Value>::internalFind(new_item.first));
+    if(newNode == NULL) return;
     int balance = newNode->getBalance();
 
     // @condition Zig Zig left
