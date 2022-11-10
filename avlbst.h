@@ -8,35 +8,37 @@
 #include <algorithm>
 #include "bst.h"
 
-struct KeyError { };
+struct KeyError
+{
+};
 
 /**
-* A special kind of node for an AVL tree, which adds the balance as a data member, plus
-* other additional helper functions. You do NOT need to implement any functionality or
-* add additional data members or helper functions.
-*/
+ * A special kind of node for an AVL tree, which adds the balance as a data member, plus
+ * other additional helper functions. You do NOT need to implement any functionality or
+ * add additional data members or helper functions.
+ */
 template <typename Key, typename Value>
 class AVLNode : public Node<Key, Value>
 {
 public:
     // Constructor/destructor.
-    AVLNode(const Key& key, const Value& value, AVLNode<Key, Value>* parent);
+    AVLNode(const Key &key, const Value &value, AVLNode<Key, Value> *parent);
     virtual ~AVLNode();
 
     // Getter/setter for the node's height.
-    int8_t getBalance () const;
-    void setBalance (int8_t balance);
+    int8_t getBalance() const;
+    void setBalance(int8_t balance);
     void updateBalance(int8_t diff);
 
     // Getters for parent, left, and right. These need to be redefined since they
     // return pointers to AVLNodes - not plain Nodes. See the Node class in bst.h
     // for more information.
-    virtual AVLNode<Key, Value>* getParent() const override;
-    virtual AVLNode<Key, Value>* getLeft() const override;
-    virtual AVLNode<Key, Value>* getRight() const override;
+    virtual AVLNode<Key, Value> *getParent() const override;
+    virtual AVLNode<Key, Value> *getLeft() const override;
+    virtual AVLNode<Key, Value> *getRight() const override;
 
 protected:
-    int8_t balance_;    // effectively a signed char
+    int8_t balance_; // effectively a signed char
 };
 
 /*
@@ -46,80 +48,76 @@ protected:
 */
 
 /**
-* An explicit constructor to initialize the elements by calling the base class constructor and setting
-* the color to red since every new node will be red when it is first inserted.
-*/
-template<class Key, class Value>
-AVLNode<Key, Value>::AVLNode(const Key& key, const Value& value, AVLNode<Key, Value> *parent) :
-    Node<Key, Value>(key, value, parent), balance_(0)
+ * An explicit constructor to initialize the elements by calling the base class constructor and setting
+ * the color to red since every new node will be red when it is first inserted.
+ */
+template <class Key, class Value>
+AVLNode<Key, Value>::AVLNode(const Key &key, const Value &value, AVLNode<Key, Value> *parent) : Node<Key, Value>(key, value, parent), balance_(0)
 {
-
 }
 
 /**
-* A destructor which does nothing.
-*/
-template<class Key, class Value>
+ * A destructor which does nothing.
+ */
+template <class Key, class Value>
 AVLNode<Key, Value>::~AVLNode()
 {
-
 }
 
 /**
-* A getter for the balance of a AVLNode.
-*/
-template<class Key, class Value>
+ * A getter for the balance of a AVLNode.
+ */
+template <class Key, class Value>
 int8_t AVLNode<Key, Value>::getBalance() const
 {
     return balance_;
 }
 
 /**
-* A setter for the balance of a AVLNode.
-*/
-template<class Key, class Value>
+ * A setter for the balance of a AVLNode.
+ */
+template <class Key, class Value>
 void AVLNode<Key, Value>::setBalance(int8_t balance)
 {
     balance_ = balance;
 }
 
 /**
-* Adds diff to the balance of a AVLNode.
-*/
-template<class Key, class Value>
+ * Adds diff to the balance of a AVLNode.
+ */
+template <class Key, class Value>
 void AVLNode<Key, Value>::updateBalance(int8_t diff)
 {
     balance_ += diff;
 }
 
 /**
-* An overridden function for getting the parent since a static_cast is necessary to make sure
-* that our node is a AVLNode.
-*/
-template<class Key, class Value>
+ * An overridden function for getting the parent since a static_cast is necessary to make sure
+ * that our node is a AVLNode.
+ */
+template <class Key, class Value>
 AVLNode<Key, Value> *AVLNode<Key, Value>::getParent() const
 {
-    return static_cast<AVLNode<Key, Value>*>(this->parent_);
+    return static_cast<AVLNode<Key, Value> *>(this->parent_);
 }
 
 /**
-* Overridden for the same reasons as above.
-*/
-template<class Key, class Value>
+ * Overridden for the same reasons as above.
+ */
+template <class Key, class Value>
 AVLNode<Key, Value> *AVLNode<Key, Value>::getLeft() const
 {
-    return static_cast<AVLNode<Key, Value>*>(this->left_);
+    return static_cast<AVLNode<Key, Value> *>(this->left_);
 }
 
 /**
-* Overridden for the same reasons as above.
-*/
-template<class Key, class Value>
+ * Overridden for the same reasons as above.
+ */
+template <class Key, class Value>
 AVLNode<Key, Value> *AVLNode<Key, Value>::getRight() const
 {
-    return static_cast<AVLNode<Key, Value>*>(this->right_);
+    return static_cast<AVLNode<Key, Value> *>(this->right_);
 }
-
 
 /*
   -----------------------------------------------
@@ -127,49 +125,104 @@ AVLNode<Key, Value> *AVLNode<Key, Value>::getRight() const
   -----------------------------------------------
 */
 
-
 template <class Key, class Value>
 class AVLTree : public BinarySearchTree<Key, Value>
 {
 public:
-    virtual void insert (const std::pair<const Key, Value> &new_item); // TODO
-    virtual void remove(const Key& key);  // TODO
+    virtual void insert(const std::pair<const Key, Value> &new_item);
+    virtual void remove(const Key &key); // TODO
 protected:
-    virtual void nodeSwap( AVLNode<Key,Value>* n1, AVLNode<Key,Value>* n2);
+    virtual void nodeSwap(AVLNode<Key, Value> *n1, AVLNode<Key, Value> *n2);
 
     // Add helper functions here
-
-
+    AVLNode<Key, Value> *rightRotation(AVLNode<Key, Value> *n);
+    AVLNode<Key, Value> *leftRotation(AVLNode<Key, Value> *n);
 };
 
 /*
- * Recall: If key is already in the tree, you should 
+ * Recall: If key is already in the tree, you should
  * overwrite the current value with the updated value.
  */
-template<class Key, class Value>
-void AVLTree<Key, Value>::insert (const std::pair<const Key, Value> &new_item)
+template <class Key, class Value>
+void AVLTree<Key, Value>::insert(const std::pair<const Key, Value> &new_item)
 {
-    // TODO
+    // @summary Insert using BST
+    BinarySearchTree<Key, Value>::insert(new_item);
+
+    // Begin AVL-specific insert implementation
+    AVLNode<Key, Value>* newNode = static_cast<AVLNode<Key, Value>*>(BinarySearchTree<Key, Value>::internalFind(new_item.first));
+    int balance = newNode->getBalance();
+
+    // @condition Zig Zig left
+    if (balance > 1 && newNode->getParent()->getKey() < new_item.first)
+        this->rightRotation(newNode);
+
+    // @condition Zig Zag left
+    if (balance > 1 &&  newNode->getParent()->getKey() < new_item.first)
+    {
+        newNode->setLeft(leftRotation(newNode->getLeft()));
+        this->rightRotation(newNode);
+    }
+
+    // @condition Zig Zig right
+    if (balance > 1 && newNode->getParent()->getKey() > new_item.first)
+        this->leftRotation(newNode);
+
+    // @condition Zig Zag right
+    if (balance > 1 && newNode->getParent()->getKey() > new_item.first)
+    {
+        newNode->setRight(leftRotation(newNode->getRight()));
+        this->leftRotation(newNode);
+    }
+}
+
+// @summary Helper function to rotate right
+template <class Key, class Value>
+AVLNode<Key, Value> *AVLTree<Key, Value>::rightRotation(AVLNode<Key, Value> *n)
+{
+    AVLNode<Key, Value>* currLeft = n->getLeft();
+    AVLNode<Key, Value>* currLeft_RightChild = currLeft->getRight();
+
+    // @summary Move current node down, set left node equal to the right child of the child node (could be null)
+    currLeft->setRight(n);
+    n->setLeft(currLeft_RightChild);
+
+    // Return new root
+    return n;
+}
+
+// @summary Helper function to rotate left
+template <class Key, class Value>
+AVLNode<Key, Value> *AVLTree<Key, Value>::leftRotation(AVLNode<Key, Value> *n)
+{
+    AVLNode<Key, Value>* currRight = n->getRight();
+    AVLNode<Key, Value>* currRight_LeftChild = currRight->getLeft();
+
+    // @summary Move current node down, set right node equal to the left child of the child node (could be null)
+    currRight->setLeft(n);
+    n->setRight(currRight_LeftChild);
+
+    // Return new root
+    return n;
 }
 
 /*
  * Recall: The writeup specifies that if a node has 2 children you
  * should swap with the predecessor and then remove.
  */
-template<class Key, class Value>
-void AVLTree<Key, Value>:: remove(const Key& key)
+template <class Key, class Value>
+void AVLTree<Key, Value>::remove(const Key &key)
 {
     // TODO
 }
 
-template<class Key, class Value>
-void AVLTree<Key, Value>::nodeSwap( AVLNode<Key,Value>* n1, AVLNode<Key,Value>* n2)
+template <class Key, class Value>
+void AVLTree<Key, Value>::nodeSwap(AVLNode<Key, Value> *n1, AVLNode<Key, Value> *n2)
 {
     BinarySearchTree<Key, Value>::nodeSwap(n1, n2);
     int8_t tempB = n1->getBalance();
     n1->setBalance(n2->getBalance());
     n2->setBalance(tempB);
 }
-
 
 #endif
