@@ -580,7 +580,8 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
 
         // @condition leaf node subcase: update predecessor parent
         if (n->getLeft() == NULL && n->getRight() == NULL) // Leaf node
-        {
+        { 
+            if (pred->getParent() == NULL) root_ = NULL; // root node case
             if (pred->getParent()->getLeft() == n)
                 pred->getParent()->setLeft(NULL);
             else
