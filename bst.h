@@ -528,7 +528,7 @@ void BinarySearchTree<Key, Value>::remove(const Key &key)
     {
         // @condition If leaf node, remove
         if (p == NULL)
-            root_ = n; // root node case
+            root_ = NULL; // root node case
         if (p != NULL)
         { // update parent
             if (p->getLeft() == n)
