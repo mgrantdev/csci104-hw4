@@ -140,20 +140,30 @@ protected:
     int calculateBalance(AVLNode<Key, Value> *n);
     int getHeight(AVLNode<Key, Value> *n);
     void updateBalances(AVLNode<Key, Value> *n);
+    void rebalanceTree(AVLNode<Key, Value> *ancestor, AVLNode<Key, Value> *newNode, AVLNode<Key, Value> *root);
 };
 
 // @summary Helper function to calculate the ancestor nodes of the tree
 template <class Key, class Value>
 void AVLTree<Key, Value>::updateBalances(AVLNode<Key, Value> *n)
-{ 
-    int lHeight, rHeight;
-    while (n != NULL) 
+{
+    int8_t lHeight = 0, rHeight = 0;
+    // std::cout << "UPDATING" << std::endl;
+    while (n != nullptr)
     {
-        if(n->getLeft() == NULL) lHeight = 0;
-        if(n->getRight() == NULL) rHeight = 0;
-        if(n->getLeft() != NULL) n->getLeft()->getBalance();
-        if(n->getRight() != NULL) n->getRight()->getBalance();
-        n->setBalance(std::max(lHeight, rHeight));
+        if (n->getLeft() == nullptr)
+            lHeight = 0;
+        if (n->getLeft() != nullptr)
+            lHeight = n->getLeft()->getBalance();
+        if (n->getRight() == nullptr)
+            rHeight = 0;
+        if (n->getRight() != nullptr)
+            rHeight = n->getRight()->getBalance();
+        n->setBalance(std::max(lHeight, rHeight) + 1);
+        /*std::cout << std::max(lHeight, rHeight)+1 << std::endl;
+        std::cout << "L " << lHeight << std::endl;
+        std::cout << "R" << rHeight << std::endl;
+        std::cout << "----" << std::endl;*/
         n = n->getParent();
     }
 }
@@ -167,19 +177,20 @@ void AVLTree<Key, Value>::insert(const std::pair<const Key, Value> &new_item)
 {
     // @summary Insert using BST insert method
     // @condition Create new root node if it doesn't exist
-    if (this->root_ == NULL)
+    if (this->root_ == nullptr)
     {
-        this->root_ = new AVLNode<Key, Value>(new_item.first, new_item.second, NULL);
+        this->root_ = new AVLNode<Key, Value>(new_item.first, new_item.second, nullptr);
         return;
     }
 
     // @summary Search for appropiate key location
-    AVLNode<Key, Value> *p = NULL;
-    AVLNode<Key, Value>* newNode = static_cast<AVLNode<Key, Value>*>(this->root_);
-    newNode->setBalance(0);
+    AVLNode<Key, Value> *p = nullptr;
+    AVLNode<Key, Value> *newNode = static_cast<AVLNode<Key, Value> *>(this->root_);
+    AVLNode<Key, Value> *ancestor = NULL;
+    AVLNode<Key, Value> *root = static_cast<AVLNode<Key, Value> *>(this->root_);
     bool setLeftChild = false;
 
-    while (newNode != NULL)
+    while (newNode != nullptr)
     {
         p = newNode; // will become the parent
 
@@ -199,6 +210,7 @@ void AVLTree<Key, Value>::insert(const std::pair<const Key, Value> &new_item)
         else if (new_item.first == newNode->getKey())
         {
             newNode->setValue(new_item.second);
+            ancestor = newNode;
             return;
         }
     }
@@ -216,43 +228,84 @@ void AVLTree<Key, Value>::insert(const std::pair<const Key, Value> &new_item)
     }
 
     // @summary Rebalance tree
-    if(newNode == NULL) return;
-    updateBalances(newNode);
+    if (newNode == nullptr)
+        return;
+    updateBalances(newNode->getParent());
 
-    int balance = newNode->getBalance();
+    AVLNode<Key, Value> *cursorNode = newNode->getParent();
+    rebalanceTree(ancestor, newNode, root);
+}
 
-    // @condition Zig Zig left
-    if (balance > 0 && newNode->getKey() < new_item.first)
-        this->rightRotation(newNode);
+template <class Key, class Value>
+void AVLTree<Key, Value>::rebalanceTree(AVLNode<Key, Value> *ancestor, AVLNode<Key, Value> *newNode, AVLNode<Key, Value> *root)
+{
 
-    // @condition Zig Zag left
-    if (balance > 0 &&  newNode->getKey() > new_item.first)
+    // Case 1: All subtrees are balanced
+    if (ancestor == NULL)
     {
-        newNode->setLeft(leftRotation(newNode->getLeft()));
-        this->rightRotation(newNode);
+        if (newNode->getKey() < root->getKey())
+        {
+            root->setBalance(-1);
+        }
+        else
+            root->setBalance(1);
+        updateBalances(newNode);
     }
 
-    // @condition Zig Zig right
-    if (balance < 0 && newNode->getKey() > new_item.first)
-        this->leftRotation(newNode);
-
-    // @condition Zig Zag right
-    if (balance < 0 && newNode->getKey() < new_item.first)
+    // Case 2: Insertion in opposite subtree of ancestor's BF
+    else if ((ancestor->getBalance() < 0) && (newNode->getKey() > ancestor->getKey()) ||
+             ((ancestor->getBalance() > 0) && (newNode->getKey() < ancestor->getKey())))
     {
-        newNode->setRight(leftRotation(newNode->getRight()));
-        this->leftRotation(newNode);
+        ancestor->setBalance(0);
+        updateBalances(newNode);
+    }
+
+    // Case 3: ancestor is right heavy and node inserted is in the right subtree of ancestor's left child
+    else if ((ancestor->getBalance() > 0) && (newNode->getKey() > ancestor->getRight()->getKey()))
+    {
+        ancestor->setBalance(0);
+        leftRotation(ancestor);
+        updateBalances(newNode);
+    }
+    // Case 4: ancestor is left heavy and node inserted is in the left subtree of ancestor's left child
+    else if ((ancestor->getBalance() < 0) && (newNode->getKey() < ancestor->getLeft()->getKey()))
+    {
+        ancestor->setBalance(0);
+        rightRotation(ancestor->getLeft());
+        updateBalances(newNode);
+    }
+
+    // Case 5: ancestor is left heavy and node inserted is in the right subtree of ancestor's left child
+    else if ((ancestor->getBalance() < 0) && (newNode->getKey() > ancestor->getLeft()->getKey()))
+    {
+        // Perform double right rotation (actually a left followed by a right)
+        rightRotation(ancestor->getLeft());
+        rightRotation(ancestor);
+        updateBalances(newNode);
+    }
+
+    //--------------------------------------------------------------------------------
+    // Case 6: ancestor.balanceFactor is 'R' and the node inserted is
+    //      in the left subtree of ancestor's right child
+    //--------------------------------------------------------------------------------
+    else
+    {
+        // Perform double left rotation (actually a right followed by a left)
+        rightRotation(ancestor->getRight());
+        leftRotation(ancestor);
+        updateBalances(newNode);
     }
 }
 
 // @summary Retrieve the height of the tree from node n
-template<class Key, class Value>
-int AVLTree<Key, Value>::getHeight(AVLNode<Key, Value>* n)
+template <class Key, class Value>
+int AVLTree<Key, Value>::getHeight(AVLNode<Key, Value> *n)
 {
     int lSubtreeHeight, rSubstreeHeight;
     int finalHeight = 0;
 
     // @summary Traverse up to right and keep track of subtree heights
-   if (n != NULL)
+    if (n != nullptr)
     {
         lSubtreeHeight = getHeight(n->getLeft());
         rSubstreeHeight = getHeight(n->getRight());
@@ -262,12 +315,12 @@ int AVLTree<Key, Value>::getHeight(AVLNode<Key, Value>* n)
 }
 
 // @summary Calculate the balance of subtrees at node n
-template<class Key, class Value>
-int AVLTree<Key, Value>::calculateBalance(AVLNode<Key, Value>* n)
+template <class Key, class Value>
+int AVLTree<Key, Value>::calculateBalance(AVLNode<Key, Value> *n)
 {
     // If no subtree, that subtree's height is 0
-    int lHeight = n->getLeft() != NULL ? this->getHeight(n->getLeft()) : 0;
-    int rHeight = n->getRight() != NULL ? this->getHeight(n->getRight()) : 0;
+    int lHeight = n->getLeft() != nullptr ? this->getHeight(n->getLeft()) : 0;
+    int rHeight = n->getRight() != nullptr ? this->getHeight(n->getRight()) : 0;
     return (rHeight - lHeight);
 }
 
@@ -275,8 +328,8 @@ int AVLTree<Key, Value>::calculateBalance(AVLNode<Key, Value>* n)
 template <class Key, class Value>
 AVLNode<Key, Value> *AVLTree<Key, Value>::rightRotation(AVLNode<Key, Value> *n)
 {
-    AVLNode<Key, Value>* currLeft = n->getLeft();
-    AVLNode<Key, Value>* currLeft_RightChild = currLeft->getRight();
+    AVLNode<Key, Value> *currLeft = n->getLeft();
+    AVLNode<Key, Value> *currLeft_RightChild = currLeft->getRight();
 
     // @summary Move current node down, set left node equal to the right child of the child node (could be null)
     currLeft->setRight(n);
@@ -294,8 +347,8 @@ AVLNode<Key, Value> *AVLTree<Key, Value>::rightRotation(AVLNode<Key, Value> *n)
 template <class Key, class Value>
 AVLNode<Key, Value> *AVLTree<Key, Value>::leftRotation(AVLNode<Key, Value> *n)
 {
-    AVLNode<Key, Value>* currRight = n->getRight();
-    AVLNode<Key, Value>* currRight_LeftChild = currRight->getLeft();
+    AVLNode<Key, Value> *currRight = n->getRight();
+    AVLNode<Key, Value> *currRight_LeftChild = currRight->getLeft();
 
     // @summary Move current node down, set right node equal to the left child of the child node (could be null)
     currRight->setLeft(n);
